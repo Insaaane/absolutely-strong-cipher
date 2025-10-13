@@ -38,9 +38,9 @@ export default function FirstTaskPageCP1251() {
   const handleEncrypt = () => {
     clearErrors();
     try {
-      const mbytes = cp1251Encode(openText);
-      const kbytes = hexToBytes(normalizeHex(keyHex));
-      if (kbytes.length !== mbytes.length) {
+      const textBytes = cp1251Encode(openText);
+      const keyBytes = hexToBytes(normalizeHex(keyHex));
+      if (keyBytes.length !== textBytes.length) {
         setKeyError(
           "Длина ключа в байтах должна совпадать с длиной открытого текста."
         );
@@ -52,13 +52,13 @@ export default function FirstTaskPageCP1251() {
         });
         return;
       }
-      const cbytes = xorBytes(mbytes, kbytes);
-      const chex = bytesToHex(cbytes);
-      setCipherHex(chex);
+      const cipherBytes = xorBytes(textBytes, keyBytes);
+      const cipherHex = bytesToHex(cipherBytes);
+      setCipherHex(cipherHex);
       setResult({
         status: "ok",
         heading: "Зашифрованный текст (hex)",
-        content: chex,
+        content: cipherHex,
       });
     } catch (e) {
       setResult({
@@ -72,9 +72,9 @@ export default function FirstTaskPageCP1251() {
   const handleFindKey = () => {
     clearErrors();
     try {
-      const mbytes = cp1251Encode(openText);
-      const cbytes = hexToBytes(normalizeHex(cipherHex));
-      if (cbytes.length !== mbytes.length) {
+      const textBytes = cp1251Encode(openText);
+      const cipherBytes = hexToBytes(normalizeHex(cipherHex));
+      if (cipherBytes.length !== textBytes.length) {
         setCipherError(
           "Длины шифротекста и открытого текста должны совпадать (в байтах)."
         );
@@ -86,13 +86,13 @@ export default function FirstTaskPageCP1251() {
         });
         return;
       }
-      const kbytes = xorBytes(cbytes, mbytes);
-      const khex = bytesToHex(kbytes);
-      setKeyHex(khex);
+      const keyBytes = xorBytes(cipherBytes, textBytes);
+      const keyHex = bytesToHex(keyBytes);
+      setKeyHex(keyHex);
       setResult({
         status: "ok",
         heading: "Найденный ключ (hex)",
-        content: khex,
+        content: keyHex,
       });
     } catch (e) {
       setResult({
@@ -106,9 +106,9 @@ export default function FirstTaskPageCP1251() {
   const handleDecode = () => {
     clearErrors();
     try {
-      const cbytes = hexToBytes(normalizeHex(cipherHex));
-      const kbytes = hexToBytes(normalizeHex(keyHex));
-      if (cbytes.length !== kbytes.length) {
+      const cipherBytes = hexToBytes(normalizeHex(cipherHex));
+      const keyBytes = hexToBytes(normalizeHex(keyHex));
+      if (cipherBytes.length !== keyBytes.length) {
         setKeyError("Длина ключа должна совпадать с длиной шифротекста.");
         setResult({
           status: "error",
@@ -117,8 +117,8 @@ export default function FirstTaskPageCP1251() {
         });
         return;
       }
-      const mbytes = xorBytes(cbytes, kbytes);
-      const decoded = cp1251Decode(mbytes);
+      const textBytes = xorBytes(cipherBytes, keyBytes);
+      const decoded = cp1251Decode(textBytes);
       setOpenText(decoded);
       setResult({
         status: "ok",

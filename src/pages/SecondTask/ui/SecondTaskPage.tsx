@@ -59,9 +59,9 @@ export default function SecondTaskPageAntD() {
       setKeyError("Длина должна быть от 1 до 1024 байт");
       return;
     }
-    const kb = generateRandomBytes(keyLen);
-    const khex = bytesToHex(kb);
-    setKeyHex(khex);
+    const keyBytes = generateRandomBytes(keyLen);
+    const keyHex = bytesToHex(keyBytes);
+    setKeyHex(keyHex);
     setVariants([]);
     setSelectedVariant(null);
     setDecryptedKeyHex("");
@@ -80,9 +80,9 @@ export default function SecondTaskPageAntD() {
         return;
       }
 
-      let kb: number[];
+      let keyBytes: number[];
       try {
-        kb = hexToBytes(normalizeHex(keyHex));
+        keyBytes = hexToBytes(normalizeHex(keyHex));
       } catch (e) {
         setKeyError("Неверный hex");
         setResult({
@@ -93,15 +93,14 @@ export default function SecondTaskPageAntD() {
         return;
       }
 
-      // используем groupCount вместо жёстко заданного 10
       const count = Math.max(1, Math.min(1000, Math.floor(groupCount) || 10));
-      const v = makeVariantsFromKey(kb, count);
-      setVariants(v);
+      const variants = makeVariantsFromKey(keyBytes, count);
+      setVariants(variants);
       setSelectedVariant(null);
       setResult({
         status: "ok",
         heading: "Группа ключей сгенерирована",
-        content: `Сгенерировано ${v.length} вариантов`,
+        content: `Сгенерировано ${variants.length} вариантов`,
       });
     } catch (e) {
       setResult({
@@ -145,9 +144,9 @@ export default function SecondTaskPageAntD() {
     try {
       if (!variantCipherInput)
         throw new Error("Поле зашифрованного ключа пустое");
-      const kbytes = variantToKeyBytes(normalizeHex(variantCipherInput));
-      const khex = bytesToHex(kbytes);
-      setDecryptedKeyHex(khex);
+      const keyBytes = variantToKeyBytes(normalizeHex(variantCipherInput));
+      const keyHex = bytesToHex(keyBytes);
+      setDecryptedKeyHex(keyHex);
       setVariantDecryptMsg({ status: "idle" });
       setResult({ status: "idle" });
     } catch (e) {
@@ -205,9 +204,9 @@ export default function SecondTaskPageAntD() {
     setResult({ status: "idle" });
     setKeyError(null);
     try {
-      const mbytes = cp1251Encode(plainText);
-      const kbytes = resolveKeyBytes();
-      if (kbytes.length !== mbytes.length) {
+      const textBytes = cp1251Encode(plainText);
+      const keyBytes = resolveKeyBytes();
+      if (keyBytes.length !== textBytes.length) {
         setKeyError("Длина ключа (в байтах) должна совпадать с длиной текста");
         setResult({
           status: "error",
@@ -216,8 +215,8 @@ export default function SecondTaskPageAntD() {
         });
         return;
       }
-      const cbytes = xorBytes(mbytes, kbytes);
-      const chex = bytesToHex(cbytes);
+      const cipherBytes = xorBytes(textBytes, keyBytes);
+      const chex = bytesToHex(cipherBytes);
       setCipherHex(chex);
       setResult({
         status: "ok",
@@ -237,9 +236,9 @@ export default function SecondTaskPageAntD() {
     setResult({ status: "idle" });
     setKeyError(null);
     try {
-      const cbytes = hexToBytes(normalizeHex(cipherHex));
-      const kbytes = resolveKeyBytes();
-      if (kbytes.length !== cbytes.length) {
+      const cipherBytes = hexToBytes(normalizeHex(cipherHex));
+      const keyBytes = resolveKeyBytes();
+      if (keyBytes.length !== cipherBytes.length) {
         setKeyError("Длина ключа должна совпадать с длиной шифротекста");
         setResult({
           status: "error",
@@ -248,8 +247,8 @@ export default function SecondTaskPageAntD() {
         });
         return;
       }
-      const mbytes = xorBytes(cbytes, kbytes);
-      const text = cp1251Decode(mbytes);
+      const textBytes = xorBytes(cipherBytes, keyBytes);
+      const text = cp1251Decode(textBytes);
       setPlainText(text);
       setResult({
         status: "ok",
@@ -266,13 +265,12 @@ export default function SecondTaskPageAntD() {
   };
 
   const handleDeriveKey = () => {
-    // Given cipherHex and plainText derive key and show hex
     setResult({ status: "idle" });
     setKeyError(null);
     try {
-      const cbytes = hexToBytes(normalizeHex(cipherHex));
-      const mbytes = cp1251Encode(plainText);
-      if (cbytes.length !== mbytes.length) {
+      const cipherBytes = hexToBytes(normalizeHex(cipherHex));
+      const textBytes = cp1251Encode(plainText);
+      if (cipherBytes.length !== textBytes.length) {
         setResult({
           status: "error",
           heading: "Ошибка длины",
@@ -281,13 +279,13 @@ export default function SecondTaskPageAntD() {
         });
         return;
       }
-      const kbytes = xorBytes(cbytes, mbytes);
-      const khex = bytesToHex(kbytes);
-      setKeyHex(khex);
+      const keyBytes = xorBytes(cipherBytes, textBytes);
+      const keyHex = bytesToHex(keyBytes);
+      setKeyHex(keyHex);
       setResult({
         status: "ok",
         heading: "Найденный ключ (hex)",
-        content: khex,
+        content: keyHex,
       });
     } catch (e) {
       setResult({
@@ -421,7 +419,7 @@ export default function SecondTaskPageAntD() {
                     value={
                       selectedVariant === null ? undefined : selectedVariant
                     }
-                    onChange={(v: number) => setSelectedVariant(v)}
+                    onChange={(variant: number) => setSelectedVariant(variant)}
                   >
                     {variants.map((vv, idx) => (
                       <Select.Option key={idx} value={idx}>
@@ -499,7 +497,7 @@ export default function SecondTaskPageAntD() {
                     Пусто — сформируйте группу.
                   </div>
                 )}
-                {variants.map((v, idx) => (
+                {variants.map((variant, idx) => (
                   <div
                     key={idx}
                     style={{
@@ -510,7 +508,7 @@ export default function SecondTaskPageAntD() {
                       alignItems: "center",
                     }}
                   >
-                    <div style={{ fontFamily: "monospace" }}>{v}</div>
+                    <div style={{ fontFamily: "monospace" }}>{variant}</div>
                     <div style={{ marginLeft: 12 }}>
                       <Button
                         size="small"
@@ -518,7 +516,7 @@ export default function SecondTaskPageAntD() {
                           setSelectedVariant(idx);
                           setKeySource("variant");
                           setResult({ status: "idle" });
-                          setVariantCipherInput(v);
+                          setVariantCipherInput(variant);
                         }}
                       >
                         Выбрать
