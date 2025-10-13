@@ -516,7 +516,6 @@ export default function SecondTaskPageAntD() {
                           setSelectedVariant(idx);
                           setKeySource("variant");
                           setResult({ status: "idle" });
-                          setVariantCipherInput(variant);
                         }}
                       >
                         Выбрать
