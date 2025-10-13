@@ -333,13 +333,13 @@ export default function SecondTaskPageAntD() {
               value={groupCount}
               onChange={(e) =>
                 setGroupCount(
-                  Math.max(1, Math.min(1000, Number(e.target.value)))
+                  Math.max(1, Math.min(255, Number(e.target.value)))
                 )
               }
               min={1}
-              max={1000}
+              max={255}
             />
-            <small style={{ color: "#888" }}>1–1000</small>
+            <small style={{ color: "#888" }}>1-255</small>
           </Flex>
         </Col>
 

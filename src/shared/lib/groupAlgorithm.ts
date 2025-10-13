@@ -9,11 +9,9 @@ export function generateRandomBytes(len: number): number[] {
 export function makeVariantsFromKey(keyBytes: number[], count = 10): string[] {
   const variants: string[] = [];
   const used = new Set<number>();
-  let tries = 0;
-  while (variants.length < count && tries < 1000) {
+  while (variants.length < count) {
     const mask = Math.floor(Math.random() * 255) + 1; // 1..255
     if (used.has(mask)) {
-      tries++;
       continue;
     }
     used.add(mask);
