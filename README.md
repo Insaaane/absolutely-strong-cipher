@@ -29,9 +29,9 @@
 ## ⚙️ Запуск проекта
 
 ```bash
-git clone https://github.com/<your-username>/<repo-name>.git
+git clone https://github.com/Insaaane/absolutely-strong-cipher.git
 
-cd <repo-name>
+cd absolutely-strong-cipher
 
 npm install
 
