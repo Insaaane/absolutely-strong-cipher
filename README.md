@@ -29,7 +29,7 @@
 ## ⚙️ Запуск проекта
 
 ```bash
-git clone https://github.com/<Insaaane>/absolutely-strong-cipher.git
+git clone https://github.com/Insaaane/absolutely-strong-cipher.git
 
 cd absolutely-strong-cipher
 
